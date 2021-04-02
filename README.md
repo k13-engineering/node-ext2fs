@@ -51,7 +51,7 @@ See the example below.
 Example
 -------
 
-## Mounting ext{2,3,4} filesystem
+### Mounting ext{2,3,4} filesystem
 
 ```javascript
 const { withMountedDisk } = require('ext2fs');
@@ -82,7 +82,7 @@ async function main() {
 
 ```
 
-## Creating ext{2,3,4} filesystem
+### Creating ext{2,3,4} filesystem
 
 ```javascript
 const { mke2fs } = require('ext2fs');
