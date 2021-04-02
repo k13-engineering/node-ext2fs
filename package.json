@@ -15,8 +15,6 @@
     "lib/**/*.wasm"
   ],
   "scripts": {
-    "build": "make -j $(nproc)",
-    "prepare": "npm run build",
     "pretest": "eslint lib test",
     "test": "mocha"
   },
