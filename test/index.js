@@ -7,6 +7,7 @@ const filedisk = require('file-disk');
 const { createReadStream } = require('fs');
 const pathModule = require('path');
 const stream = require('stream');
+const ramdisk = require('./ramdisk');
 
 const ext2fs = require('..');
 
@@ -777,6 +778,91 @@ describe('ext2fs', () => {
 				assert.strictEqual(ranges[1].offset, 3146752);
 				assert.strictEqual(ranges[1].length, 5120);
 			}
+		});
+	});
+
+	describe('symlink', () => {
+		const filename = '/testlink';
+		const linkpath = '/usr/bin/echo';
+
+		testOnAllDisksMount(async (fs) => {
+			await fs.symlinkAsync(filename, linkpath);
+			const [linkpathActual] = await fs.readlinkAsync(filename);
+
+			assert.strictEqual(linkpathActual, linkpath);
+		});
+	});
+
+	describe('readlink non-existing', () => {
+		const filename = '/testlink';
+
+		testOnAllDisksMount(async (fs) => {
+			await assert.rejects(async() => {
+				await fs.readlinkAsync(filename);
+			}, (err) => {
+				return err.code === 'ENOENT';
+			});
+		});
+	});
+
+	describe('readlink non-link', () => {
+		const filename = '/testlink';
+
+		testOnAllDisksMount(async (fs) => {
+			await fs.writeFileAsync(filename, 'Hello, World!');
+
+			await assert.rejects(async() => {
+				await fs.readlinkAsync(filename);
+			}, (err) => {
+				return err.code === 'EINVAL';
+			});
+		});
+	});
+
+	describe('mke2fs', () => {
+
+		[
+			64 * 1024 * 1024,
+			128 * 1024 * 1024,
+			256 * 1024 * 1024
+		].forEach((diskSize) => {
+			[
+				1024,
+				2048,
+				4096,
+				8192
+			].forEach((blockSize) => {
+				it(`${diskSize / 1024 / 1024} MiB disk, block size ${blockSize}`, async() => {
+					const disk = ramdisk.create(diskSize);
+		
+					await ext2fs.mke2fs(disk, {
+						raw: {
+							'b': `${blockSize}`
+						}
+					});
+		
+					await ext2fs.withMountedDisk(disk, 0, async (fs) => {
+						const fsPromises = Bluebird.promisifyAll(fs, { multiArgs: true });
+						const [filesInRoot] = await fsPromises.readdirAsync('/');
+		
+						assert.deepStrictEqual(filesInRoot, ['lost+found']);
+					});
+				});
+			});
+		});
+
+		describe('errors', () => {
+			it('wrong block size', async() => {
+				const disk = ramdisk.create(64 * 1024 * 1024);
+
+				await assert.rejects(async() => {
+					await ext2fs.mke2fs(disk, {
+						raw: {
+							'b': '1023'
+						}
+					});
+				});
+			});
 		});
 	});
 });

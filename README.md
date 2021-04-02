@@ -15,6 +15,7 @@ Some things you can do with this module:
 * Combine node-ext2fs filesystem streams with host filesystem streams (e.g copy files)
 * Create a tar archive from a filesystem image
 * Perform a TRIM operation to obtain discard regions of a filesystem
+* Use mke2fs to initialize a new filesystem
 
 Installation
 ------------
@@ -50,6 +51,8 @@ See the example below.
 Example
 -------
 
+## Mounting ext{2,3,4} filesystem
+
 ```javascript
 const { withMountedDisk } = require('ext2fs');
 const { FileDisk, withOpenFile } = require('file-disk');
@@ -77,6 +80,33 @@ async function main() {
         }
 }
 
+```
+
+## Creating ext{2,3,4} filesystem
+
+```javascript
+const { mke2fs } = require('ext2fs');
+const { FileDisk, withOpenFile } = require('file-disk');
+
+async function main() {
+	const diskImage = 'test.img';
+
+        try {
+                await withOpenFile(diskImage, 'r+', async (handle) => {
+                        const disk = new FileDisk(handle);
+                        await mke2fs(disk, {
+                                raw: {
+                                        'b': '4096'
+                                }
+                        }, {
+                            stdout: process.stdout,
+                            stderr: process.stderr
+                        });
+                });
+        } catch (error) {
+                console.error(error);
+        }
+}
 ```
 
 Support

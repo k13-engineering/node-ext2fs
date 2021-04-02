@@ -1,0 +1,23 @@
+--- deps/e2fsprogs/misc/mke2fs.c	2021-03-31 00:28:04.859473861 +0200
++++ deps/e2fsprogs/misc/mke2fs.patched.c	2021-04-02 11:22:37.733352176 +0200
+@@ -2813,8 +2813,19 @@
+ 	return 0;
+ }
+ 
+-int main (int argc, char *argv[])
++#include "glue.h"
++#include <emscripten.h>
++
++int node_ext2fs_mkfs (int disk_id)
+ {
++    char hex_ptr[sizeof(void*) * 2 + 3];
++
++    sprintf(hex_ptr, "%d", disk_id);
++    unix_io_manager = get_js_io_manager();
++
++    char *argv[] = { "mke2fs", "-t", "ext4", hex_ptr, "100M" };
++    int argc = sizeof(argv) / sizeof(argv[0]);
++
+ 	errcode_t	retval = 0;
+ 	ext2_filsys	fs;
+ 	badblocks_list	bb_list = 0;
