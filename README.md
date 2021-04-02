@@ -95,6 +95,8 @@ async function main() {
                 await withOpenFile(diskImage, 'r+', async (handle) => {
                         const disk = new FileDisk(handle);
                         await mke2fs(disk, {
+				// options for mke2fs (equivalent to CLI, see mke2fs(8))
+				// key is option (e.g. 'b' is '-b' for block size), value is a string parameter
                                 raw: {
                                         'b': '4096'
                                 }
