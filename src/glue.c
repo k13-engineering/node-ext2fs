@@ -573,8 +573,8 @@ errcode_t node_ext2fs_readlink(
 
 errcode_t node_ext2fs_symlink(
 	ext2_filsys fs,
-	const char* path,
-	const char* target
+	const char* target,
+	const char* path
 ) {
 	errcode_t ret = 0;
 	
