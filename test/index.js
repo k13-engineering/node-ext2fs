@@ -783,13 +783,13 @@ describe('ext2fs', () => {
 
 	describe('symlink', () => {
 		const filename = '/testlink';
-		const linkpath = '/usr/bin/echo';
+		const target = '/usr/bin/echo';
 
 		testOnAllDisksMount(async (fs) => {
-			await fs.symlinkAsync(filename, linkpath);
-			const [linkpathActual] = await fs.readlinkAsync(filename);
+			await fs.symlinkAsync(target, filename);
+			const [targetActual] = await fs.readlinkAsync(filename);
 
-			assert.strictEqual(linkpathActual, linkpath);
+			assert.strictEqual(targetActual, target);
 		});
 	});
 
