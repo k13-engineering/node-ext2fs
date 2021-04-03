@@ -51,7 +51,7 @@ See the example below.
 Example
 -------
 
-## Mounting ext{2,3,4} filesystem
+### Mounting ext{2,3,4} filesystem
 
 ```javascript
 const { withMountedDisk } = require('ext2fs');
@@ -82,7 +82,7 @@ async function main() {
 
 ```
 
-## Creating ext{2,3,4} filesystem
+### Creating ext{2,3,4} filesystem
 
 ```javascript
 const { mke2fs } = require('ext2fs');
@@ -95,6 +95,8 @@ async function main() {
                 await withOpenFile(diskImage, 'r+', async (handle) => {
                         const disk = new FileDisk(handle);
                         await mke2fs(disk, {
+				// options for mke2fs (equivalent to CLI, see mke2fs(8))
+				// key is option (e.g. 'b' is '-b' for block size), value is a string parameter
                                 raw: {
                                         'b': '4096'
                                 }
